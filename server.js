@@ -1,6 +1,6 @@
 import express from 'express';
 import { PrismaClient } from './generated/prisma/index.js';
-import { request } from 'https';
+
 
 
 const prisma = new PrismaClient();
@@ -19,7 +19,7 @@ app.post('/users', async (req,res) => {
             age: req.body.age 
         }
     });
-    users.push(req.body);
+    
     res.status(201).json(req.body);
 
 });
@@ -29,7 +29,23 @@ app.post('/users', async (req,res) => {
 //HTTP Get - Listar usuários
 app.get('/users', async (req,res) => {
 
-    const users = await prisma.user.findMany();
+    let users = [];
+
+    if (req.query){
+        users = await prisma.user.findMany({
+            where: { 
+                name: req.query.name,
+                email: req.query.email,
+                age: req.query.age
+            }
+
+        });
+
+
+    }else{
+        await prisma.user.findMany();
+    }
+
     res.status(200).json(users);
 
 });
